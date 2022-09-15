@@ -5,10 +5,10 @@ import (
 )
 
 type Student struct {
-	ID       string
-	Name     string
-	HasTutor bool
-	Phone    string
+	ID       string `json:"id"`
+	Name     string `json:"name"`
+	HasTutor bool   `json:"hasTutor"`
+	Phone    string `json:"phone,omitempty"`
 }
 
 type Tutor struct {

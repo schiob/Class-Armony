@@ -1,0 +1,308 @@
+openapi: 3.1.0
+x-stoplight:
+  id: oeudb80jh6yoz
+info:
+  title: Class Armony
+  version: '1.0'
+servers:
+  - url: 'http://localhost:3000'
+paths:
+  '/students/{studentId}':
+    parameters:
+      - schema:
+          type: string
+        name: studentId
+        in: path
+        required: true
+        description: El Id del estudiante.
+    get:
+      summary: Get Student Info by Student ID
+      responses:
+        '200':
+          description: Stdent Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Student'
+              examples:
+                example-1:
+                  value:
+                    id: '142'
+                    name: Alice
+                    hasTutor: true
+        '404':
+          description: User Not Found
+        '500':
+          description: Internal Server Error
+      operationId: get-students-studentId
+      description: Regresa el estudiante que tenga el mismo ID.
+    patch:
+      summary: Update User Information
+      operationId: patch-students-studentId
+      responses:
+        '200':
+          description: User Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Student'
+              examples:
+                example-1:
+                  value:
+                    id: '142'
+                    name: Alice
+                    hasTutor: true
+        '404':
+          description: Student Not Found
+        '500':
+          description: Internal Server Error
+      description: Hace update de la información de un estudiante existente.
+      requestBody:
+        $ref: '#/components/requestBodies/patch'
+    delete:
+      summary: ''
+      operationId: delete-students-studentId
+      responses:
+        '202':
+          description: Accepted
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+      description: Eliminar registro de estudiante.
+  /student:
+    post:
+      summary: Create New Student
+      operationId: post-student
+      responses:
+        '201':
+          description: Student Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Student'
+              examples:
+                example-1:
+                  value:
+                    id: '142'
+                    name: Alice
+                    hasTutor: true
+        '400':
+          description: Missing Required Information
+        '500':
+          description: Internal Server Error
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Nombre del estudiante
+                hasTutor:
+                  type: boolean
+                  description: El estudiante tiene un Padre/Tutor?
+                phone:
+                  type: string
+                  description: Contacto del estudiante
+                tutorId:
+                  type: string
+                  description: Id del Tutor en el caso de que `hasTutor` sea `true`
+              required:
+                - name
+                - hasTutor
+            examples:
+              Create User Bob Fellow:
+                value:
+                  name: Bob
+                  hasTutor: true
+                  phone: '1001001010'
+        description: Post los campos necesarios para generar un nuevo estudiante.
+      description: Crea un nuevo student.
+    parameters:
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+    get:
+      summary: List Students
+      operationId: get-student
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  _links:
+                    type: object
+                    required:
+                      - first
+                      - last
+                    properties:
+                      first:
+                        type: string
+                        description: URL de primera página de la colección.
+                      last:
+                        type: string
+                        description: URL de última página de la colección.
+                      prev:
+                        type: string
+                        description: URL de la página anterior.
+                      next:
+                        type: string
+                        description: URL de la siguiente página.
+                  students:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Student'
+                required:
+                  - _links
+              examples:
+                example-1:
+                  value:
+                    _links:
+                      first: string
+                      last: string
+                      prev: string
+                      next: string
+                    students:
+                      - id: '142'
+                        name: Alice
+                        hasTutor: true
+        '500':
+          description: Internal Server Error
+      description: Enlista los estudiantes
+      parameters:
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/offset'
+components:
+  schemas:
+    Student:
+      title: Student
+      type: object
+      description: ''
+      examples:
+        - id: '142'
+          name: Alice
+          hasTutor: true
+        - id: 143
+          name: Bob
+          hasTutor: false
+          phone: '1001001010'
+      properties:
+        id:
+          description: Identificador único de un estudiante.
+          type: string
+        name:
+          type: string
+          description: Nombre del estudiante.
+        hasTutor:
+          type: boolean
+          description: True si el estudiante tiene un Padre/Tutor.
+        phone:
+          type: string
+          description: Teléfono de contacto del estudiante.
+      required:
+        - id
+        - name
+        - hasTutor
+  parameters:
+    limit:
+      name: limit
+      in: query
+      required: true
+      schema:
+        type: integer
+        default: 50
+      description: Máximo número de registros que se regresan en la respuesta.
+    offset:
+      name: offset
+      in: query
+      required: true
+      schema:
+        type: integer
+        default: 0
+      description: Número de registros que se saltan en la respuesta.
+  requestBodies:
+    patch:
+      content:
+        application/json:
+          schema:
+            type: array
+            x-examples:
+              example-1:
+                - op: test
+                  path: /a/b/c
+                  value: foo
+                - op: remove
+                  path: /a/b/c
+                - op: add
+                  path: /a/b/c
+                  value:
+                    - foo
+                    - bar
+                - op: replace
+                  path: /a/b/c
+                  value: 42
+                - op: move
+                  from: /a/b/c
+                  path: /a/b/d
+                - op: copy
+                  from: /a/b/d
+                  path: /a/b/e
+            items:
+              type: object
+              properties:
+                op:
+                  type: string
+                  description: Operación a realizar.
+                  enum:
+                    - add
+                    - remove
+                    - replace
+                    - move
+                    - copy
+                    - test
+                  example: add
+                path:
+                  type: string
+                  description: Path del atributo en el objeto.
+                  example: /a/b/c
+                value:
+                  type:
+                    - integer
+                    - string
+                    - array
+                  description: 'Valor para las operaciones de `add`, `test`, `replace`. '
+                  items: {}
+                from:
+                  type: string
+                  description: Para las opciones de `move` y `copy`.
+                  example: /a/b/c
+              required:
+                - op
+                - path
+          examples:
+            example-1:
+              value:
+                - op: test
+                  path: /a/b/c
+                  value: foo
+                - op: remove
+                  path: /a/b/c
+                - op: add
+                  path: /a/b/c
+                  value:
+                    - foo
+                    - bar
+                - op: replace
+                  path: /a/b/c
+                  value: 42
+                - op: move
+                  from: /a/b/c
+                  path: /a/b/d
+                - op: copy
+                  from: /a/b/d
+                  path: /a/b/e
+      description: 'Payload de una petición PATCH siguiendo https://datatracker.ietf.org/doc/html/rfc6902'

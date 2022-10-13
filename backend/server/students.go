@@ -2,13 +2,13 @@ package server
 
 import (
 	"armony"
-	"log"
+	"fmt"
 
 	"github.com/gofiber/fiber/v2"
 )
 
 type studentsStorage interface {
-	List() ([]armony.Student, error)
+	List(limit, offset int) ([]armony.Student, int, error)
 	GetByID(id string) (*armony.Student, error)
 	Create(student armony.Student, tutorID *string) (*armony.Student, error)
 	DeleteByID(id string) error
@@ -57,18 +57,32 @@ func (s studentsService) SetRoutes(app *fiber.App) error {
 }
 
 func (s studentsService) list(c *fiber.Ctx) error {
-	// TODO: this
-	log.Println(c.Locals("limit"))
-	// limit := c.Locals("limit")
-	// offset := c.Locals("offset")
+	limit := c.Locals("limit").(int)
+	offset := c.Locals("offset").(int)
 	// DB query
-	students, err := s.storage.List()
+	students, total, err := s.storage.List(limit, offset)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": err.Error(),
 		})
 	}
+
+	next := offset
+	if total > offset+limit {
+		next = offset + limit
+	}
+	prev := offset
+	if 0 <= offset-limit {
+		prev = offset - limit
+	}
+	li := links{
+		First: fmt.Sprintf("%s?limit=%d&offset=%d", s.path, limit, 0),
+		Last:  fmt.Sprintf("%s?limit=%d&offset=%d", s.path, limit, total/limit*limit),
+		Prev:  fmt.Sprintf("%s?limit=%d&offset=%d", s.path, limit, prev),
+		Next:  fmt.Sprintf("%s?limit=%d&offset=%d", s.path, limit, next),
+	}
 	res := studentsList{
+		Links:    li,
 		Students: students,
 	}
 	return c.JSON(res)

@@ -21,12 +21,15 @@ type storageMock struct {
 	students map[string]armony.Student
 }
 
-func (s *storageMock) List() ([]armony.Student, error) {
+func (s *storageMock) List(limit, offset int) ([]armony.Student, int, error) {
 	res := make([]armony.Student, 0)
-	for _, s := range s.students {
-		res = append(res, s)
+	for _, student := range s.students {
+		if len(res) == limit {
+			return res, len(s.students), nil
+		}
+		res = append(res, student)
 	}
-	return res, nil
+	return res, len(s.students), nil
 }
 
 func (s *storageMock) Create(student armony.Student, tutorID *string) (*armony.Student, error) {

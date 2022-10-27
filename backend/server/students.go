@@ -2,8 +2,10 @@ package server
 
 import (
 	"armony"
+	"encoding/json"
 	"fmt"
 
+	jsonpatch "github.com/evanphx/json-patch"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -11,6 +13,7 @@ type studentsStorage interface {
 	List(limit, offset int) ([]armony.Student, int, error)
 	GetByID(id string) (*armony.Student, error)
 	Create(student armony.Student, tutorID *string) (*armony.Student, error)
+	Replace(id string, student armony.Student) error
 	DeleteByID(id string) error
 }
 
@@ -50,7 +53,7 @@ func (s studentsService) SetRoutes(app *fiber.App) error {
 	studentsGroup.Get("/", paginate(50, 0), s.list)
 	studentsGroup.Post("/", s.create)
 	studentsGroup.Get("/:id", s.getByID)
-	studentsGroup.Patch("/:id", todo)
+	studentsGroup.Patch("/:id", s.patch)
 	studentsGroup.Delete("/:id", s.deteleByID)
 
 	return nil
@@ -135,6 +138,45 @@ func (s studentsService) deteleByID(c *fiber.Ctx) error {
 	}
 	//Return user
 	return c.SendStatus(202)
+}
+
+func (s studentsService) patch(c *fiber.Ctx) error {
+	studentID := c.Params("id")
+	// Unmarshal del payload
+	patch, err := jsonpatch.DecodePatch(c.Body())
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	// Obtener original
+	student, err := s.storage.GetByID(studentID)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+	studentJson, err := json.Marshal(student)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+
+	// Aplicar Patch
+	modified, err := patch.Apply(studentJson)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+
+	var finalStudent armony.Student
+	err = json.Unmarshal(modified, &finalStudent)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+
+	// Guardar en base
+	err = s.storage.Replace(finalStudent.ID, finalStudent)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(finalStudent)
 }
 
 func todo(c *fiber.Ctx) error {

@@ -53,3 +53,8 @@ func (s *storageMock) DeleteByID(id string) error {
 	}
 	return errors.New("Not Found")
 }
+
+func (s *storageMock) Replace(id string, student armony.Student) error {
+	s.students[id] = student
+	return nil
+}

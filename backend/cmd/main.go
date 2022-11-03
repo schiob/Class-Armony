@@ -2,6 +2,7 @@ package main
 
 import (
 	"armony"
+	"armony/postgres"
 	"armony/server"
 	"errors"
 	"log"
@@ -11,10 +12,17 @@ import (
 
 func main() {
 	port := ":8080"
-	storage := &storageMock{
-		students: make(map[string]armony.Student),
+
+	// storage := &storageMock{
+	// 	students: make(map[string]armony.Student),
+	// }
+
+	uri := "postgres://chio:password@127.0.0.1:5432/armony?sslmode=disable"
+	postresStorage, err := postgres.NewStorage(uri)
+	if err != nil {
+		panic(err)
 	}
-	log.Fatal(server.Start(port, storage))
+	log.Fatal(server.Start(port, postresStorage))
 }
 
 type storageMock struct {

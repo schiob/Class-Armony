@@ -6,6 +6,7 @@ require (
 	github.com/evanphx/json-patch v0.5.2
 	github.com/gofiber/fiber/v2 v2.37.1
 	github.com/google/uuid v1.3.0
+	github.com/lib/pq v1.10.7
 )
 
 require (

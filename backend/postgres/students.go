@@ -8,7 +8,34 @@ import (
 )
 
 func (s *Controller) List(limit, offset int) ([]armony.Student, int, error) {
-	return nil, 0, nil
+	sqlStatement := `SELECT id, name, has_tutor, phone FROM students LIMIT $1 OFFSET $2;`
+
+	students := make([]armony.Student, 0)
+
+	rows, err := s.DB.Query(sqlStatement, limit, offset)
+	if err != nil {
+		return nil, 0, fmt.Errorf("error quering database: %w", err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		student := armony.Student{}
+		err = rows.Scan(&student.ID, &student.Name, &student.HasTutor, &student.Phone)
+		if err != nil {
+			return nil, 0, fmt.Errorf("error in row scan: %w", err)
+		}
+		students = append(students, student)
+	}
+
+	var studentsCount int
+
+	sqlStatement = `SELECT count(*) FROM students;`
+	row := s.DB.QueryRow(sqlStatement)
+	err = row.Scan(&studentsCount)
+	if err != nil {
+		return nil, 0, fmt.Errorf("error counting students: %w", err)
+	}
+
+	return students, studentsCount, nil
 }
 
 func (s *Controller) Create(student armony.Student, tutorID *string) (*armony.Student, error) {

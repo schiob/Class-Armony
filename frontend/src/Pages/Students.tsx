@@ -1,58 +1,126 @@
-import { useState } from 'react';
-import { createStyles, Table, ScrollArea } from '@mantine/core';
+import { useState, useEffect } from "react";
+import { useForm } from "@mantine/form";
+import {
+  Title,
+  Loader,
+  ActionIcon,
+  Flex,
+  Tooltip,
+  Modal,
+  TextInput,
+  Checkbox,
+  Button,
+  Group,
+} from "@mantine/core";
+import { IconPlus } from "@tabler/icons";
+import { TableScrollArea } from "./../components/Table";
 
-const useStyles = createStyles((theme) => ({
-  header: {
-    position: 'sticky',
-    top: 0,
-    backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.white,
-    transition: 'box-shadow 150ms ease',
-
-    '&::after': {
-      content: '""',
-      position: 'absolute',
-      left: 0,
-      right: 0,
-      bottom: 0,
-      borderBottom: `1px solid ${
-        theme.colorScheme === 'dark' ? theme.colors.dark[3] : theme.colors.gray[2]
-      }`,
-    },
-  },
-
-  scrolled: {
-    boxShadow: theme.shadows.sm,
-  },
-}));
-
-interface TableScrollAreaProps {
-  data: { name: string; email: string; company: string }[];
+interface StudentPayload {
+  hasTutor: boolean;
+  name: string;
+  phone: string;
 }
 
-export function TableScrollArea({ data }: TableScrollAreaProps) {
-  const { classes, cx } = useStyles();
-  const [scrolled, setScrolled] = useState(false);
+function handleCreateStudent(
+  value: StudentPayload,
+  setModalOpened: React.Dispatch<React.SetStateAction<boolean>>,
+  setStudents: React.Dispatch<React.SetStateAction<never[]>>
+) {
+  const requestOptions = {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(value),
+  };
 
-  const rows = data.map((row) => (
-    <tr key={row.name}>
-      <td>{row.name}</td>
-      <td>{row.email}</td>
-      <td>{row.company}</td>
-    </tr>
-  ));
+  fetch("http://localhost:8080/students", requestOptions)
+    .then((response) => response.json())
+    .then((data) => {
+      console.log(data);
+      setModalOpened(false);
+      setStudents(data);
+    });
+}
+
+export function StudentsPage() {
+  const [isLoading, setIsLoading] = useState(true);
+  const [students, setStudents] = useState([]);
+  const [modalOpened, setModalOpened] = useState(false);
+
+  useEffect(() => {
+    fetch("http://localhost:8080/students")
+      .then((response) => response.json())
+      .then((list) => {
+        setStudents(list.students);
+        setIsLoading(false);
+      });
+  }, []);
+
+  const form = useForm({
+    initialValues: {
+      name: "",
+      phone: "",
+      hasTutor: false,
+    },
+  });
 
   return (
-    <ScrollArea sx={{ height: 300 }} onScrollPositionChange={({ y }) => setScrolled(y !== 0)}>
-      <Table sx={{ minWidth: 700 }}>
-        <thead className={cx(classes.header, { [classes.scrolled]: scrolled })}>
-          <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Company</th>
-          </tr>
-        </thead>
-        <tbody>{rows}</tbody>
-      </Table>
-    </ScrollArea>
+    <div>
+      <Title>Alumnos</Title>
+      {isLoading ? <Loader /> : <TableScrollArea data={students} />}
+
+      <Modal
+        centered
+        opened={modalOpened}
+        onClose={() => setModalOpened(false)}
+        title="Crear nuevo estudiante"
+      >
+        <form
+          onSubmit={form.onSubmit((value) =>
+            handleCreateStudent(value, setModalOpened, 
+              (x) => {
+              const newStudents: never[] = [...students, x];
+              setStudents(newStudents);
+            })
+          )}
+        >
+          <TextInput
+            withAsterisk
+            label="Nombre"
+            placeholder="Santiago Chio"
+            {...form.getInputProps("name")}
+          />
+          <TextInput
+            withAsterisk
+            label="Teléfono"
+            placeholder="10001101"
+            {...form.getInputProps("phone")}
+          />
+
+          <Checkbox
+            mt="md"
+            label="Tiene tutor?"
+            {...form.getInputProps("hasTutor", { type: "checkbox" })}
+          />
+
+          <Group position="right" mt="md">
+            <Button type="submit">Crear</Button>
+          </Group>
+        </form>
+      </Modal>
+      <Flex justify="flex-end" align="flex-start" direction="row" wrap="wrap">
+        <Tooltip label="Agregar">
+          <ActionIcon
+            right={1}
+            size={44}
+            radius="xl"
+            color="blue"
+            variant="filled"
+            onClick={() => setModalOpened(true)}
+          >
+            <IconPlus size={28} stroke={1.5} />
+          </ActionIcon>
+        </Tooltip>
+      </Flex>
+    </div>
   );
 }

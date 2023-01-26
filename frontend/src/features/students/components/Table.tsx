@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { createStyles, Table, ScrollArea } from '@mantine/core';
+import { Student } from '../types';
 
 const useStyles = createStyles((theme) => ({
   header: {
@@ -26,7 +27,7 @@ const useStyles = createStyles((theme) => ({
 }));
 
 interface TableScrollAreaProps {
-  data: { name: string; tutor: boolean; phone: string }[];
+  data: Student[];
 }
 
 export function TableScrollArea({ data }: TableScrollAreaProps) {
@@ -36,7 +37,7 @@ export function TableScrollArea({ data }: TableScrollAreaProps) {
   const rows = data.map((row) => (
     <tr key={row.name}>
       <td>{row.name}</td>
-      <td>{row.tutor ? 'Tiene tutor' : 'no tiene tutor'}</td>
+      <td>{row.hasTutor ? 'Tiene tutor' : 'no tiene tutor'}</td>
       <td>{row.phone}</td>
     </tr>
   ));

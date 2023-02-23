@@ -34,5 +34,20 @@ export default function useStudents() {
     setStudents((prev) => [...prev, data]);
   };
 
-  return { isLoading, students, addStudent };
+  const deleteStudent = async (studentID: string) => {
+    const requestOptions = {
+      method: "DELETE",
+    };
+
+    const response = await fetch(
+      "http://localhost:8080/students/".concat(studentID),
+      requestOptions
+    );
+    const data = await response.json();
+    console.log(data);
+
+    // setStudents((prev) => [...prev, data]);
+  };
+
+  return { isLoading, students, addStudent, deleteStudent };
 }

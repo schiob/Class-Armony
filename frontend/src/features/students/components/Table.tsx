@@ -42,7 +42,11 @@ interface TableScrollAreaProps {
   setStudentID: (studentID: string) => void;
 }
 
-export function TableScrollArea({ data, openModal, setStudentID }: TableScrollAreaProps) {
+export function TableScrollArea({
+  data,
+  openModal,
+  setStudentID,
+}: TableScrollAreaProps) {
   const { classes, cx } = useStyles();
   const [scrolled, setScrolled] = useState(false);
 
@@ -56,10 +60,12 @@ export function TableScrollArea({ data, openModal, setStudentID }: TableScrollAr
           <ActionIcon>
             <IconPencil size={16} stroke={1.5} />
           </ActionIcon>
-          <ActionIcon onClick={ () => {
-            setStudentID(row.id);
-            openModal();
-            }}>
+          <ActionIcon
+            onClick={() => {
+              setStudentID(row.id);
+              openModal();
+            }}
+          >
             <IconTrash size={16} stroke={1.5} color="red" />
           </ActionIcon>
         </Group>

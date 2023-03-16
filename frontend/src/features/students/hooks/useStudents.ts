@@ -29,7 +29,6 @@ export default function useStudents() {
       requestOptions
     );
     const data = await response.json();
-    console.log(data);
 
     setStudents((prev) => [...prev, data]);
   };
@@ -43,10 +42,20 @@ export default function useStudents() {
       "http://localhost:8080/students/".concat(studentID),
       requestOptions
     );
-    const data = await response.json();
-    console.log(data);
+    const responseStatus = await response.status;
+    console.log(responseStatus);
 
-    // setStudents((prev) => [...prev, data]);
+    setStudents((prev) => {
+      var newArr: Array<Student> = [];
+
+      prev.forEach(element => {
+        if(element.id !== studentID){
+          newArr.push(element);
+        }
+      });
+
+      return newArr;
+    });
   };
 
   return { isLoading, students, addStudent, deleteStudent };

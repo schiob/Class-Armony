@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { Student, StudentPayload } from "../types";
+import { Student, StudentPayload } from "../../types";
 
 const STUDENTS_ENDPOINT = "http://localhost:8080/students/";
 
-export default function useStudents() {
+export function useStudents() {
   const [isLoading, setIsLoading] = useState(true);
   const [students, setStudents] = useState<Student[]>([]);
 
@@ -45,6 +45,7 @@ export default function useStudents() {
       STUDENTS_ENDPOINT.concat(studentID),
       requestOptions
     );
+    
     const responseStatus = await response.status;
     console.log(responseStatus);
 

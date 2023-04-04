@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
 import { Student, StudentPayload } from "../types";
 
+const STUDENTS_ENDPOINT = "http://localhost:8080/students/";
+
 export default function useStudents() {
   const [isLoading, setIsLoading] = useState(true);
   const [students, setStudents] = useState<Student[]>([]);
 
   // TODO: Cambiar esto a usar useCallback
   const getStudents = async () => {
-    const response = await fetch("http://localhost:8080/students");
+    const response = await fetch(STUDENTS_ENDPOINT);
     const list = await response.json();
     const students = list.students ?? []
     
@@ -26,7 +28,7 @@ export default function useStudents() {
     };
 
     const response = await fetch(
-      "http://localhost:8080/students",
+      STUDENTS_ENDPOINT,
       requestOptions
     );
     const data = await response.json();
@@ -40,7 +42,7 @@ export default function useStudents() {
     };
 
     const response = await fetch(
-      "http://localhost:8080/students/".concat(studentID),
+      STUDENTS_ENDPOINT.concat(studentID),
       requestOptions
     );
     const responseStatus = await response.status;

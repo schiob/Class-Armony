@@ -9,8 +9,9 @@ export default function useStudents() {
   const getStudents = async () => {
     const response = await fetch("http://localhost:8080/students");
     const list = await response.json();
-
-    setStudents(list.students);
+    const students = list.students ?? []
+    
+    setStudents(students);
     setIsLoading(false);
   };
 

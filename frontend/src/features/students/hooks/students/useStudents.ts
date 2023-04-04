@@ -1,26 +1,37 @@
-import { useEffect, useState } from "react";
-import { Student, StudentPayload } from "../../types";
+import { useEffect, useReducer } from "react";
+import { StudentPayload } from "../../types";
+
+import { ACTIONS, reducer } from "./utils/handle-reducer";
+import type { IState } from "./utils/handle-reducer/types";
 
 const STUDENTS_ENDPOINT = "http://localhost:8080/students/";
-
+const DEFAULT_VALUE:IState = {
+  isLoading:true,
+  students:[],
+  error:""
+}
 export function useStudents() {
-  const [isLoading, setIsLoading] = useState(true);
-  const [students, setStudents] = useState<Student[]>([]);
+  const [state, dispatch] = useReducer(reducer, DEFAULT_VALUE)
+
 
   // TODO: Cambiar esto a usar useCallback
   const getStudents = async () => {
+    dispatch({type:ACTIONS.SWITCH_LOADING})
+ 
     const response = await fetch(STUDENTS_ENDPOINT);
     const list = await response.json();
     const students = list.students ?? []
     
-    setStudents(students);
-    setIsLoading(false);
+    dispatch({type:ACTIONS.UPDATE, students})
+    dispatch({type:ACTIONS.SWITCH_LOADING})
   };
 
   useEffect(() => {getStudents()}, []);
 
   // TODO: esto también
   const addStudent = async (studentP: StudentPayload) => {
+    dispatch({type:ACTIONS.SWITCH_LOADING})
+
     const requestOptions = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -33,10 +44,13 @@ export function useStudents() {
     );
     const data = await response.json();
 
-    setStudents((prev) => [...prev, data]);
+    dispatch({type:ACTIONS.ADD_STUDENT, student:data})
+    dispatch({type:ACTIONS.SWITCH_LOADING})
   };
 
   const deleteStudent = async (studentID: string) => {
+    dispatch({type:ACTIONS.SWITCH_LOADING})
+
     const requestOptions = {
       method: "DELETE",
     };
@@ -46,21 +60,11 @@ export function useStudents() {
       requestOptions
     );
     
-    const responseStatus = await response.status;
+    const responseStatus = response.status;
     console.log(responseStatus);
 
-    setStudents((prev) => {
-      var newArr: Array<Student> = [];
-
-      prev.forEach(element => {
-        if(element.id !== studentID){
-          newArr.push(element);
-        }
-      });
-
-      return newArr;
-    });
+    dispatch({type:ACTIONS.DELETE_STUDENT, id:studentID})
   };
 
-  return { isLoading, students, addStudent, deleteStudent };
+  return { ...state, addStudent, deleteStudent };
 }

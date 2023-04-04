@@ -4,7 +4,7 @@ import { NavbarMinimalColored } from "./components/NavBar";
 import { CustomHeader } from "./components/Header";
 import { Inicio } from "./Pages/Inicio";
 import { StudentsPage } from "./Pages/Students";
-import { ThemeProvider } from "./ThemeProvider";
+import { ThemeProvider } from "context/ThemeContext";
 
 function App() {
   return (

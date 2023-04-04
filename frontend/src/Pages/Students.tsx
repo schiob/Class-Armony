@@ -7,7 +7,7 @@ import { TableScrollArea } from "../features/students/components/Table";
 import { AddButton } from "../features/students/components/AddButton";
 import { CreateStudent as CreateStudentModal } from "../features/students/modals/CreateStudent";
 import { DeleteStudent as DeleteStudentModal } from "../features/students/modals/DeleteStudent";
-import useStudents from "../features/students/hooks/useStudents";
+import {useStudents} from "../features/students/hooks/students";
 
 
 export function StudentsPage() {

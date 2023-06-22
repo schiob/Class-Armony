@@ -1,17 +1,18 @@
 import { Modal, Text, Group, Button } from "@mantine/core";
 import { useForm } from "@mantine/form";
+import { Student } from "../types";
 
 interface Props{
     isOpened: boolean;
     closeModal: VoidFunction;
-    studentID: string;
+    student: Student;
     deleteStudent: (studentId: string) => void;
 }
 
-export function DeleteStudent( { closeModal, isOpened, studentID, deleteStudent }: Props){
+export function DeleteStudent( { closeModal, isOpened, student, deleteStudent }: Props){
   const form = useForm();  
   const submitForm = async () => {
-        await deleteStudent(studentID);
+        await deleteStudent(student.id);
         closeModal();
     }
 

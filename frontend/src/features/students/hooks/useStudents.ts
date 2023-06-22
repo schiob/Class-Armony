@@ -33,6 +33,22 @@ export default function useStudents() {
     setStudents((prev) => [...prev, data]);
   };
 
+  const updateStudent = async (oldStudent: Student, newStudent: StudentPayload) => {
+    // const requestOptions = {
+    //   method: "POST",
+    //   headers: { "Content-Type": "application/json" },
+    //   body: JSON.stringify(studentP),
+    // };
+
+    // const response = await fetch(
+    //   "http://localhost:8080/students",
+    //   requestOptions
+    // );
+    // const data = await response.json();
+
+    // setStudents((prev) => [...prev, data]);
+  };
+
   const deleteStudent = async (studentID: string) => {
     const requestOptions = {
       method: "DELETE",
@@ -58,5 +74,5 @@ export default function useStudents() {
     });
   };
 
-  return { isLoading, students, addStudent, deleteStudent };
+  return { isLoading, students, addStudent, updateStudent, deleteStudent };
 }

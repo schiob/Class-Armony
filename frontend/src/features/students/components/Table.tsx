@@ -38,14 +38,16 @@ const useStyles = createStyles((theme) => ({
 
 interface TableScrollAreaProps {
   data: Student[];
-  openModal: VoidFunction;
-  setStudentID: (studentID: string) => void;
+  openDeleteModal: VoidFunction;
+  openUpdateModal: VoidFunction;
+  setStudent: (student: Student) => void;
 }
 
 export function TableScrollArea({
   data,
-  openModal,
-  setStudentID,
+  openDeleteModal,
+  openUpdateModal,
+  setStudent,
 }: TableScrollAreaProps) {
   const { classes, cx } = useStyles();
   const [scrolled, setScrolled] = useState(false);
@@ -57,13 +59,18 @@ export function TableScrollArea({
       <td>{row.phone}</td>
       <td>
         <Group spacing={0} position="right">
-          <ActionIcon>
+          <ActionIcon
+          onClick={() => {
+            setStudent(row);
+            openUpdateModal();
+          }}
+          >
             <IconPencil size={16} stroke={1.5} />
           </ActionIcon>
           <ActionIcon
             onClick={() => {
-              setStudentID(row.id);
-              openModal();
+              setStudent(row);
+              openDeleteModal();
             }}
           >
             <IconTrash size={16} stroke={1.5} color="red" />

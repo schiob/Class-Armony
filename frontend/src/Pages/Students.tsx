@@ -13,7 +13,8 @@ export function StudentsPage() {
   const [updateModalOpened, setUpdateModalOpened] = useState(false);
   const [deleteModalOpened, setDeleteModalOpened] = useState(false);
   const [currentStudent, setCurrentStudent] = useState<Student>({} as Student);
-  const { isLoading, students, addStudent, updateStudent, deleteStudent } = useStudents();
+  const { isLoading, students, addStudent, updateStudent, deleteStudent } =
+    useStudents();
 
   return (
     <div>
@@ -29,23 +30,29 @@ export function StudentsPage() {
         />
       )}
 
-      <CreateStudentModal
-        isOpened={createModalOpened}
-        closeModal={() => setCreateModalOpened(false)}
-        addStudent={addStudent}
-      />
-      <UpdateStudentModal
-        isOpened={updateModalOpened}
-        closeModal={() => setUpdateModalOpened(false)}
-        student={currentStudent}
-        updateStudent={updateStudent}
-      />
-      <DeleteStudentModal
-        isOpened={deleteModalOpened}
-        closeModal={() => setDeleteModalOpened(false)}
-        student={currentStudent}
-        deleteStudent={deleteStudent}
-      />
+      {createModalOpened && (
+        <CreateStudentModal
+          isOpened={createModalOpened}
+          closeModal={() => setCreateModalOpened(false)}
+          addStudent={addStudent}
+        />
+      )}
+      {updateModalOpened && (
+        <UpdateStudentModal
+          isOpened={updateModalOpened}
+          closeModal={() => setUpdateModalOpened(false)}
+          student={currentStudent}
+          updateStudent={updateStudent}
+        />
+      )}
+      {updateModalOpened && (
+        <DeleteStudentModal
+          isOpened={deleteModalOpened}
+          closeModal={() => setDeleteModalOpened(false)}
+          student={currentStudent}
+          deleteStudent={deleteStudent}
+        />
+      )}
       <AddButton openModal={() => setCreateModalOpened(true)} />
     </div>
   );
